@@ -35,15 +35,44 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: 40 }}>
-      <h1>RPGサンプル</h1>
-      <div style={{ display: 'inline-block', background: '#eee', padding: 16 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${MAP_WIDTH}, 32px)` }}>
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#eee',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+    }}>
+      <h1 style={{ marginBottom: 16 }}>RPGサンプル</h1>
+      <div style={{
+        flex: '0 0 auto',
+        width: '80vw',
+        maxWidth: 640,
+        height: '60vh',
+        maxHeight: 384,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#fff',
+        borderRadius: 8,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        marginBottom: 24,
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${MAP_WIDTH}, 1fr)`,
+          gridTemplateRows: `repeat(${MAP_HEIGHT}, 1fr)`,
+          width: '100%',
+          height: '100%',
+        }}>
           {initialMap.flatMap((row, y) =>
             row.map((cell, x) => {
               let imgSrc = cell === 'wall' ? wallImg : groundImg;
               if (x === player.x && y === player.y) imgSrc = playerImg;
-              return <img key={`${x}-${y}`} src={imgSrc} alt={cell} width={32} height={32} />;
+              return <img key={`${x}-${y}`} src={imgSrc} alt={cell} style={{ width: '100%', height: '100%' }} />;
             })
           )}
         </div>
