@@ -4,13 +4,25 @@ import React, { useState } from 'react';
 import groundImg from './assets/ground.svg';
 import wallImg from './assets/wall.svg';
 import playerImg from './assets/player.svg';
+// 仮画像: 道・家・木
+import roadImg from './assets/road.svg';
+import houseImg from './assets/house.svg';
+import treeImg from './assets/tree.svg';
 
-const MAP_WIDTH = 10;
-const MAP_HEIGHT = 6;
+const MAP_WIDTH = 12;
+const MAP_HEIGHT = 8;
 
-const initialMap = Array.from({ length: MAP_HEIGHT }, (_, y) =>
-  Array.from({ length: MAP_WIDTH }, (_, x) => (y === 0 || y === MAP_HEIGHT - 1 || x === 0 || x === MAP_WIDTH - 1 ? 'wall' : 'ground'))
-);
+// 街のマップ例
+const initialMap = [
+  ['wall','wall','wall','wall','wall','wall','wall','wall','wall','wall','wall','wall'],
+  ['wall','road','road','road','road','road','road','road','road','road','road','wall'],
+  ['wall','road','house','road','tree','road','road','tree','road','house','road','wall'],
+  ['wall','road','road','road','road','road','road','road','road','road','road','wall'],
+  ['wall','road','tree','road','house','road','road','house','road','tree','road','wall'],
+  ['wall','road','road','road','road','road','road','road','road','road','road','wall'],
+  ['wall','road','house','road','tree','road','road','tree','road','house','road','wall'],
+  ['wall','wall','wall','wall','wall','wall','wall','wall','wall','wall','wall','wall'],
+];
 
 const initialPlayer = { x: 1, y: 1 };
 
@@ -18,16 +30,35 @@ function App() {
   const [player, setPlayer] = useState(initialPlayer);
   const [battle, setBattle] = useState(false);
 
-  const movePlayer = (dx: number, dy: number) => {
+
+  const movePlayer = React.useCallback((dx: number, dy: number) => {
     const newX = player.x + dx;
     const newY = player.y + dy;
+    // 壁以外のみ移動可能
     if (
-      newX > 0 && newX < MAP_WIDTH - 1 &&
-      newY > 0 && newY < MAP_HEIGHT - 1
+      newX >= 0 && newX < MAP_WIDTH &&
+      newY >= 0 && newY < MAP_HEIGHT &&
+      initialMap[newY][newX] !== 'wall'
     ) {
       setPlayer({ x: newX, y: newY });
     }
-  };
+  }, [player]);
+
+  // WASDキーで移動
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      switch (e.key.toLowerCase()) {
+        case 'w': movePlayer(0, -1); break;
+        case 'a': movePlayer(-1, 0); break;
+        case 's': movePlayer(0, 1); break;
+        case 'd': movePlayer(1, 0); break;
+        default: break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [player, movePlayer]);
 
   const handleBattle = () => {
     setBattle(true);
@@ -70,7 +101,11 @@ function App() {
         }}>
           {initialMap.flatMap((row, y) =>
             row.map((cell, x) => {
-              let imgSrc = cell === 'wall' ? wallImg : groundImg;
+              let imgSrc = groundImg;
+              if (cell === 'wall') imgSrc = wallImg;
+              if (cell === 'road') imgSrc = roadImg;
+              if (cell === 'house') imgSrc = houseImg;
+              if (cell === 'tree') imgSrc = treeImg;
               if (x === player.x && y === player.y) imgSrc = playerImg;
               return <img key={`${x}-${y}`} src={imgSrc} alt={cell} style={{ width: '100%', height: '100%' }} />;
             })
