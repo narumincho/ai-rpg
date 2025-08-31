@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+
+import { useState } from 'react';
+import './App.css';
+
+const MAP_WIDTH = 10;
+const MAP_HEIGHT = 6;
+
+const initialMap = Array.from({ length: MAP_HEIGHT }, (_, y) =>
+  Array.from({ length: MAP_WIDTH }, (_, x) => (y === 0 || y === MAP_HEIGHT - 1 || x === 0 || x === MAP_WIDTH - 1 ? '■' : ' '))
+);
+
+const initialPlayer = { x: 1, y: 1 };
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [player, setPlayer] = useState(initialPlayer);
+  const [battle, setBattle] = useState(false);
+
+  const movePlayer = (dx: number, dy: number) => {
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+    if (
+      newX > 0 && newX < MAP_WIDTH - 1 &&
+      newY > 0 && newY < MAP_HEIGHT - 1
+    ) {
+      setPlayer({ x: newX, y: newY });
+    }
+  };
+
+  const handleBattle = () => {
+    setBattle(true);
+    setTimeout(() => setBattle(false), 1000);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div style={{ textAlign: 'center', marginTop: 40 }}>
+      <h1>RPGサンプル</h1>
+      <div style={{ fontFamily: 'monospace', display: 'inline-block', background: '#eee', padding: 16 }}>
+        {initialMap.map((row, y) => (
+          <div key={y}>
+            {row.map((cell, x) =>
+              x === player.x && y === player.y ? <span key={x} style={{ color: 'blue' }}>＠</span> : <span key={x}>{cell}</span>
+            )}
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div style={{ margin: '16px 0' }}>
+        <button onClick={() => movePlayer(0, -1)}>↑</button>
+        <button onClick={() => movePlayer(-1, 0)}>←</button>
+        <button onClick={() => movePlayer(1, 0)}>→</button>
+        <button onClick={() => movePlayer(0, 1)}>↓</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <button onClick={handleBattle} disabled={battle} style={{ marginBottom: 16 }}>
+        戦う
+      </button>
+      {battle && <div style={{ color: 'red', fontWeight: 'bold' }}>戦闘中！</div>}
+    </div>
+  );
 }
 
-export default App
+export default App;
